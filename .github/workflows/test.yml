@@ -30,7 +30,7 @@ jobs:
     steps:
       # Шаг 1: Клонирование репозитория
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Шаг 2: Создание файла prometheus.yml
       - name: Create prometheus.yml
@@ -79,13 +79,13 @@ jobs:
 
       # Шаг 8: Сохранение артефактов (результатов тестов и метрик)
       - name: Upload Behave test reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: behave-reports
           path: reports
 
       - name: Upload Prometheus metrics
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: prometheus-metrics
           path: prometheus-metrics.txt
