@@ -1,0 +1,91 @@
+name: CI with Monitoring for Behave
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-with-monitoring:
+    runs-on: ubuntu-latest
+    services:
+      jaeger:
+        image: jaegertracing/all-in-one:latest
+        ports:
+          - 16686:16686    # Jaeger UI
+          - 6831:6831/udp  # Jaeger Thrift UDP
+      prometheus:
+        image: prom/prometheus:latest
+        ports:
+          - 9090:9090      # Prometheus UI
+
+    env:
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
+      TEST_EMAIL: ${{ secrets.TEST_EMAIL }}
+      TEST_CODE: ${{ secrets.TEST_CODE }}
+
+
+    steps:
+      # Шаг 1: Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Создание файла prometheus.yml
+      - name: Create prometheus.yml
+        run: |
+          echo "global:" > prometheus.yml
+          echo "  scrape_interval: 15s" >> prometheus.yml
+          echo "scrape_configs:" >> prometheus.yml
+          echo "  - job_name: 'prometheus'" >> prometheus.yml
+          echo "    static_configs:" >> prometheus.yml
+          echo "      - targets: ['localhost:9090']" >> prometheus.yml
+
+      # Шаг 3: Установка Python и зависимостей
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install behave
+
+      # Шаг 5: Поднятие сервера
+      - name: Start application server
+        run: |
+          python main.py &
+        env:
+          JAEGER_AGENT_HOST: localhost
+          JAEGER_AGENT_PORT: 6831
+
+      # Шаг 6: Ожидание готовности сервера
+      - name: Wait for server to be ready
+        run: |
+          for i in {1..30}; do
+            curl -f http://localhost:8000/health || sleep 2
+          done
+
+      # Шаг 7: Запуск тестов Behave с мониторингом
+      - name: Run Behave tests
+        env:
+          JAEGER_AGENT_HOST: localhost
+          JAEGER_AGENT_PORT: 6831
+        run: |
+          behave --junit --junit-directory reports
+          curl -o prometheus-metrics.txt http://localhost:9090/metrics
+
+      # Шаг 8: Сохранение артефактов (результатов тестов и метрик)
+      - name: Upload Behave test reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: behave-reports
+          path: reports
+
+      - name: Upload Prometheus metrics
+        uses: actions/upload-artifact@v3
+        with:
+          name: prometheus-metrics
+          path: prometheus-metrics.txt
