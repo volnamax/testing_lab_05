@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: Dockerfile
     working_dir: /app/features  # Указываем рабочую папку
-    command: ["sh", "-c", "sleep 2 && behave"]
+    command: ["sh", "-c", "wait-for-it.sh app:8000 -- behave"]
     #depends_on:
      # - app
       #- jaeger
