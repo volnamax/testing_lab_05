@@ -2,7 +2,7 @@ from behave import given, when, then
 import requests
 
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://localhost:8080"
 
 
 @given('the user provides valid email and password')

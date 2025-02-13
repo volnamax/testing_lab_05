@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000" # Prometheus метрики
+      - "8080:8080" # Prometheus метрики
     environment:
       JAEGER_AGENT_HOST: jaeger
       JAEGER_AGENT_PORT: 6831
@@ -39,7 +39,7 @@ services:
       context: .
       dockerfile: Dockerfile
     working_dir: /app/features  # Указываем рабочую папку
-    command: ["sh", "-c", "wait-for-it.sh app:8000 -- behave"]
+    command: ["sh", "-c", "wait-for-it.sh app:8080 -- behave"]
     #depends_on:
      # - app
       #- jaeger

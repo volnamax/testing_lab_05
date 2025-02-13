@@ -79,8 +79,8 @@ memory_usage = meter.create_observable_gauge(
 setup_otel()
 
 # Запуск сервера Prometheus для экспонирования метрик
-start_http_server(8000)
-print("Метрики доступны по адресу http://localhost:8000/metrics")
+start_http_server(8080)
+print("Метрики доступны по адресу http://localhost:8080/metrics")
 
 
 
@@ -193,4 +193,4 @@ def health_check():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="debug")

@@ -26,7 +26,7 @@ COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
 
 # Открываем порт 8000
-EXPOSE 8000
+EXPOSE 8080
 
 # Запускаем приложение
 CMD ["python", "main.py"]
