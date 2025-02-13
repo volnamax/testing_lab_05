@@ -64,7 +64,7 @@ jobs:
       # Шаг 6: Ожидание готовности сервера
       - name: Wait for server to be ready
         run: |
-          for i in {1..30}; do
+          for i in {1..100}; do
             curl -f http://localhost:8000/health || sleep 2
           done
 
